@@ -1,5 +1,5 @@
 # CaculatingContribution
-This project is calculating GitHub contribution for every one.
+This project is calculating GitHub contributions for team members.
 
 
 # Development Tech Stask List
