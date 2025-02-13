@@ -13,6 +13,9 @@ This project is calculating GitHub contribution for every one.
  
 #### Web contains
   - [Uvicorn](https://www.uvicorn.org/)
+
+#### Schedule component
+  - Schedule
  
 
 ## Database
