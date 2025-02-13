@@ -2,7 +2,7 @@
 This project is calculating GitHub contribution for every one.
 
 
-####　Tech Stask
+### Tech Stask
 - Python
   - Fastapi
   - Uvicorn
@@ -11,5 +11,5 @@ This project is calculating GitHub contribution for every one.
   - to be find a ui framework
 
 
- #### Dev tools
+ ### Dev tools
  - Pycharm
