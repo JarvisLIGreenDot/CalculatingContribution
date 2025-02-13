@@ -18,7 +18,6 @@ This project is calculating GitHub contributions for team members.
   - [Schedule](https://schedule.readthedocs.io/en/stable/)
   - [PyGithub](https://github.com/PyGithub/PyGithub)
   - [Swagger](https://swagger.io/blog/api-development/automatically-generating-swagger-specifications-wi/)
-  - [Environment]
  
 
 ## Database
