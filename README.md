@@ -14,8 +14,10 @@ This project is calculating GitHub contribution for every one.
 #### Web contains
   - [Uvicorn](https://www.uvicorn.org/)
 
-#### Schedule component
+#### Python thirdpart component
   - Schedule
+  - [PyGithub](https://github.com/PyGithub/PyGithub)
+  - [Swagger](https://swagger.io/blog/api-development/automatically-generating-swagger-specifications-wi/)
  
 
 ## Database
