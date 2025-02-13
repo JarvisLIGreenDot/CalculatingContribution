@@ -2,7 +2,7 @@
 This project is calculating GitHub contribution for every one.
 
 
-### Development Tech Stask List
+# Development Tech Stask List
 - [Python](https://www.python.org/)
   - [Fastapi](https://fastapi.tiangolo.com/)
   - [Uvicorn](https://www.uvicorn.org/)
@@ -11,6 +11,6 @@ This project is calculating GitHub contribution for every one.
   - [ElementPlus](https://element-plus.org/en-US/)
 
 
- ### Dev tools
+# Dev tools
  - [Pycharm](https://www.jetbrains.com/pycharm/)
  - [Vscode](https://code.visualstudio.com/)
