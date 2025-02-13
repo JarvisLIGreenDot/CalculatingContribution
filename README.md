@@ -15,7 +15,7 @@ This project is calculating GitHub contribution for every one.
   - [Uvicorn](https://www.uvicorn.org/)
 
 #### Python thirdpart component
-  - Schedule
+  - [Schedule](https://schedule.readthedocs.io/en/stable/)
   - [PyGithub](https://github.com/PyGithub/PyGithub)
   - [Swagger](https://swagger.io/blog/api-development/automatically-generating-swagger-specifications-wi/)
  
