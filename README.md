@@ -2,7 +2,7 @@
 This project is calculating GitHub contribution for every one.
 
 
-### Tech Stask
+### Development Tech Stask List
 - [Python](https://www.python.org/)
   - [Fastapi](https://fastapi.tiangolo.com/)
   - [Uvicorn](https://www.uvicorn.org/)
