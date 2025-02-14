@@ -22,6 +22,9 @@ This project is calculating GitHub contributions for team members.
 
 ## Database
 - [Sqlite](https://www.sqlite.org/)
+- [Postgressql](https://www.postgresql.org/)
+
+Need to confirm which one to use.
 
 ## Frontend
 - [Vue](https://vuejs.org/)
