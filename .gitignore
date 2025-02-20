@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 **.vsc**
 **.idea**
+**/.idea/**
+**/node_modules/**
