@@ -2,6 +2,7 @@ import tomllib
 import uvicorn
 from fastapi import FastAPI
 from routers import users
+from config.load_config import app_settings
 
 app = FastAPI()
 
@@ -17,9 +18,9 @@ if __name__ == "__main__":
 
     uvicorn.run(
         app,
-        host=server_config["host"],
-        port=server_config["port"],
-        workers=server_config.get("workers"), # get方法防止key不存在报错
-        log_level=server_config.get("log_level"), # get方法防止key不存在报错
-        reload=server_config.get("reload") # get方法防止key不存在报错
+        host=app_settings.server.host,
+        port=app_settings.server.port,
+        workers=app_settings.server.workers, # get方法防止key不存在报错
+        log_level=app_settings.server.log_level, # get方法防止key不存在报错
+        reload=app_settings.server.reload # get方法防止key不存在报错
     )
