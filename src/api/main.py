@@ -1,15 +1,13 @@
 import tomllib
 import uvicorn
 from fastapi import FastAPI
-from routers import users, items
+from routers import users
 
 app = FastAPI()
 
 app.include_router(users.user_router, prefix="/users")
-app.include_router(items.item_router, prefix="/items")
+# app.include_router(items.item_router, prefix="/items")
 
-# async def root():
-#     return {"message": "Hello, FastAPI!"}
 
 if __name__ == "__main__":
     with open("config.toml", "rb") as f:
