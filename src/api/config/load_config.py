@@ -2,7 +2,7 @@ import tomllib
 from pathlib import Path
 from typing import Optional
 
-from api.models.app_settings import AppSettings
+from models.app_settings import AppSettings
 
 def load_config(config_path: Optional[Path] = None) -> AppSettings:
     """
