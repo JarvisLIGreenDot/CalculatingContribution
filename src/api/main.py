@@ -24,3 +24,7 @@ if __name__ == "__main__":
         log_level=app_settings.server.log_level, # get方法防止key不存在报错
         reload=app_settings.server.reload # get方法防止key不存在报错
     )
+
+
+# TODO: Use postgresql database to store contributions
+# TODO: create a new git server to store current code
