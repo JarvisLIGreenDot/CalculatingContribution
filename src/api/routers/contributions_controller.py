@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from sqlalchemy.orm import Session
 from datetime import datetime
-from repos.DataAccess import db
 from business.contributions_service import ContributionsService
 
 router = APIRouter(
@@ -11,21 +9,18 @@ router = APIRouter(
 )
 
 @router.get("/export")
-async def export_contributions(
-    days: int = 7,
-    db: Session = Depends(db.get_db)
-):
+async def export_contributions(days: int = 30):
     """
     Export GitHub contributions to CSV file
     
     Args:
-        days: Number of days to look back (default: 7)
+        days: Number of days to look back (default: 30)
     
     Returns:
         FileResponse: CSV file download
     """
     try:
-        service = ContributionsService(db)
+        service = ContributionsService()
         filepath = await service.export_contributions_csv(days=days)
         
         return FileResponse(

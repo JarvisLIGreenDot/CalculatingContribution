@@ -1,5 +1,6 @@
 import tomllib
 from pathlib import Path
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
@@ -7,9 +8,12 @@ from sqlalchemy.ext.declarative import declarative_base
 class DataAccess:
     def __init__(self):
         try:
-            config_path = Path("config.toml")
+            # Get the current file's directory and navigate to config.toml
+            current_dir = Path(__file__).resolve().parent.parent
+            config_path = current_dir / "config.toml"
+            
             if not config_path.exists():
-                raise FileNotFoundError("config.toml not found")
+                raise FileNotFoundError(f"config.toml not found at {config_path}")
             
             with open(config_path, "rb") as f:
                 config = tomllib.load(f)

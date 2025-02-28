@@ -5,16 +5,15 @@ from github import Github
 from github.Repository import Repository
 from github.AuthenticatedUser import AuthenticatedUser
 from repos.ConfigureDataAccess import ConfigureDataAccess
-from sqlalchemy.orm import Session
 from models.contributions import Contribution
 from repos.UserDataAccess import UserDataAccess
+from models.user import User
 
 class GitHubHelper:
-    def __init__(self, session: Session):
+    def __init__(self):
         """Initialize GitHub helper using token from configuration"""
-        self.session = session
         config_repo = ConfigureDataAccess()
-        config = config_repo.get_configuration_by_key(session, "github.token")
+        config = config_repo.get_configuration_by_key("github.token")
         if not config:
             raise ValueError("GitHub token not found in configuration")
         
@@ -29,10 +28,10 @@ class GitHubHelper:
             List[Contribution]: List of daily contributions grouped by user and date
         """
         user_repo = UserDataAccess()
-        users = user_repo.get_users(self.session)
+        users = user_repo.get_users()
         
         if not users:
-            raise ValueError("No active users found in database")
+            raise ValueError("No users found to process")
         
         since_date = datetime.now() - timedelta(days=days)
         all_contributions = []

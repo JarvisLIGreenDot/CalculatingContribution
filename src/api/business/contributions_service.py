@@ -1,39 +1,38 @@
 from typing import List
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
 from datetime import datetime
 from utilitys.github_helper import GitHubHelper
 from utilitys.csv_helper import CsvHelper
 from models.contributions import Contribution
+from repos.UserDataAccess import UserDataAccess
 
 class ContributionsService:
-    def __init__(self, session: Session):
-        self.session = session
-        self.github_helper = GitHubHelper(session)
+    def __init__(self):
+        """Initialize ContributionsService"""
+        self.github_helper = GitHubHelper()
 
-    async def export_contributions_csv(self, username: str, days: int = 365) -> str:
+    async def export_contributions_csv(self, days: int = 30) -> str:
         """
-        Export user's GitHub contributions to CSV
+        Export all active users' GitHub contributions to CSV
         
         Args:
-            username: GitHub username
-            days: Number of days to look back (default: 365)
+            days: Number of days to look back (default: 30)
             
         Returns:
             str: Path to the generated CSV file
         """
         try:
-            # Get contributions data from GitHub
-            contributions = self.github_helper.get_daily_contributions(username, days)
+            # Get contributions from GitHub
+            contributions = self.github_helper.get_daily_contributions(days=days)
             
             if not contributions:
                 raise HTTPException(
                     status_code=404,
-                    detail=f"No contributions found for user {username}"
+                    detail="No contributions found"
                 )
             
-            # Generate filename with username and date
-            filename = f"github_contributions_{username}_{datetime.now().strftime('%Y%m%d')}.csv"
+            # Generate filename with date
+            filename = f"github_contributions_{datetime.now().strftime('%Y%m%d')}.csv"
             
             # Export to CSV
             filepath = CsvHelper.export_to_csv(contributions, filename)
