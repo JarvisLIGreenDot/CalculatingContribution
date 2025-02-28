@@ -4,60 +4,74 @@ from collections import defaultdict
 from github import Github
 from github.Repository import Repository
 from github.AuthenticatedUser import AuthenticatedUser
+from repos.ConfigureDataAccess import ConfigureDataAccess
+from sqlalchemy.orm import Session
+from models.contributions import Contribution
+from repos.UserDataAccess import UserDataAccess
 
 class GitHubHelper:
-    def __init__(self, access_token: str):
-        """Initialize GitHub helper with access token"""
-        self.github = Github(access_token)
+    def __init__(self, session: Session):
+        """Initialize GitHub helper using token from configuration"""
+        self.session = session
+        config_repo = ConfigureDataAccess()
+        config = config_repo.get_configuration_by_key(session, "github.token")
+        if not config:
+            raise ValueError("GitHub token not found in configuration")
         
-    def get_daily_contributions(self, username: str, days: int = 365) -> Dict:
+        self.github = Github(config.value)
+        
+    def get_daily_contributions(self, days: int = 7) -> List[Contribution]:
         """
-        Get user's daily contributions for the specified period
+        Get daily contributions for all active users, grouped by user and date
         Args:
-            username: GitHub username
-            days: Number of days to look back (default: 365)
+            days: Number of days to look back (default: 7)
         Returns:
-            Dict containing daily contribution statistics
+            List[Contribution]: List of daily contributions grouped by user and date
         """
-        user = self.github.get_user(username)
+        user_repo = UserDataAccess()
+        users = user_repo.get_users(self.session)
+        
+        if not users:
+            raise ValueError("No active users found in database")
+        
         since_date = datetime.now() - timedelta(days=days)
+        all_contributions = []
         
-        # Initialize daily contributions structure
-        daily_contributions = defaultdict(lambda: {
-            "date": "",
-            "commits": 0,
-            "pull_requests": 0,
-            "issues": 0,
-            "total": 0
-        })
+        # Process each user
+        for user_record in users:
+            github_user = self.github.get_user(user_record.account)
+            user_contributions = defaultdict(lambda: Contribution(
+                username=user_record.account,
+                contrib_date=datetime.now().date(),
+                commit_count=0,
+                pr_review_count=0
+            ))
+            
+            # Get user's repositories
+            for repo in github_user.get_repos():
+                self._collect_daily_repo_contributions(
+                    repo, github_user, since_date, user_contributions
+                )
+            
+            # Add non-zero contributions to result
+            daily_contributions = [
+                contrib for contrib in user_contributions.values() 
+                if contrib.subtotal > 0
+            ]
+            all_contributions.extend(daily_contributions)
         
-        # Get user's repositories
-        for repo in user.get_repos():
-            self._collect_daily_repo_contributions(
-                repo, user, since_date, daily_contributions
-            )
-        
-        # Convert defaultdict to regular dict and sort by date
-        result = {
-            "daily_data": sorted(
-                daily_contributions.values(), 
-                key=lambda x: x["date"]
-            ),
-            "summary": {
-                "total_commits": sum(day["commits"] for day in daily_contributions.values()),
-                "total_prs": sum(day["pull_requests"] for day in daily_contributions.values()),
-                "total_issues": sum(day["issues"] for day in daily_contributions.values())
-            }
-        }
-        
-        return result
+        # Sort by username first, then by date
+        return sorted(
+            all_contributions, 
+            key=lambda x: (x.username, x.contrib_date)
+        )
     
     def _collect_daily_repo_contributions(
         self, 
         repo: Repository, 
         user: AuthenticatedUser, 
         since_date: datetime,
-        daily_contributions: defaultdict
+        contributions_dict: defaultdict
     ) -> None:
         """Collect daily contributions for a specific repository"""
         
@@ -66,9 +80,9 @@ class GitHubHelper:
             commits = repo.get_commits(author=user, since=since_date)
             for commit in commits:
                 date_str = commit.commit.author.date.strftime('%Y-%m-%d')
-                daily_contributions[date_str]["date"] = date_str
-                daily_contributions[date_str]["commits"] += 1
-                daily_contributions[date_str]["total"] += 1
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                contributions_dict[date_str].contrib_date = date_obj
+                contributions_dict[date_str].commit_count += 1
         except Exception:
             pass
             
@@ -78,20 +92,8 @@ class GitHubHelper:
             for pr in pulls:
                 if pr.created_at >= since_date:
                     date_str = pr.created_at.strftime('%Y-%m-%d')
-                    daily_contributions[date_str]["date"] = date_str
-                    daily_contributions[date_str]["pull_requests"] += 1
-                    daily_contributions[date_str]["total"] += 1
-        except Exception:
-            pass
-            
-        # Count issues
-        try:
-            issues = repo.get_issues(creator=user)
-            for issue in issues:
-                if issue.created_at >= since_date:
-                    date_str = issue.created_at.strftime('%Y-%m-%d')
-                    daily_contributions[date_str]["date"] = date_str
-                    daily_contributions[date_str]["issues"] += 1
-                    daily_contributions[date_str]["total"] += 1
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    contributions_dict[date_str].contrib_date = date_obj
+                    contributions_dict[date_str].pr_review_count += 1
         except Exception:
             pass
