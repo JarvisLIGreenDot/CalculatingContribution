@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import HTTPException
 from datetime import datetime
+from io import StringIO
 from utilitys.github_helper import GitHubHelper
 from utilitys.csv_helper import CsvHelper
 from models.contributions import Contribution
@@ -12,7 +13,7 @@ class ContributionsService:
         self.github_helper = GitHubHelper()
         self.user_repo = UserDataAccess()
 
-    async def export_contributions_csv(self, days: int = 7) -> str:
+    async def export_contributions_csv(self, days: int = 30) -> StringIO:
         """
         Export all active users' GitHub contributions to CSV
         
@@ -20,7 +21,7 @@ class ContributionsService:
             days: Number of days to look back (default: 30)
             
         Returns:
-            str: Path to the generated CSV file
+            StringIO: CSV content as a string buffer
         """
         try:
             # Get active users from database
@@ -43,13 +44,21 @@ class ContributionsService:
                     detail="No contributions found"
                 )
             
-            # Generate filename with date
-            filename = f"github_contributions_{datetime.now().strftime('%Y%m%d')}.csv"
+            # Define headers with desired column order
+            headers = {
+                'id': 'ID',
+                'username': 'Username',
+                'contrib_date': 'Date',
+                'commit_count': 'Commit Count',
+                'pr_review_count': 'PR Review Count',
+                'subtotal': 'Total'
+            }
             
-            # Export to CSV
-            filepath = CsvHelper.export_to_csv(contributions, filename)
-            
-            return filepath
+            # Export to CSV and return stream
+            return CsvHelper.export_to_csv(
+                data=contributions,
+                headers=headers
+            )
             
         except Exception as e:
             raise HTTPException(

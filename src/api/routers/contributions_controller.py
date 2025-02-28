@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 from datetime import datetime
 from business.contributions_service import ContributionsService
 
@@ -17,16 +17,22 @@ async def export_contributions(days: int = 7):
         days: Number of days to look back (default: 30)
     
     Returns:
-        FileResponse: CSV file download
+        StreamingResponse: CSV file download
     """
     try:
         service = ContributionsService()
-        filepath = await service.export_contributions_csv(days=days)
+        csv_content = await service.export_contributions_csv(days=days)
         
-        return FileResponse(
-            filepath,
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"github_contributions_{timestamp}.csv"
+        
+        return StreamingResponse(
+            iter([csv_content.getvalue()]),
             media_type='text/csv',
-            filename=f"github_contributions_{datetime.now().strftime('%Y%m%d')}.csv"
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"'
+            }
         )
         
     except Exception as e:
