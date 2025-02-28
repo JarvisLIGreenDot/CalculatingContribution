@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'User'
     
     key = Column(BigInteger, primary_key=True, nullable=False, comment='User unique key')
     account = Column(String(100), nullable=False, comment='User account name')

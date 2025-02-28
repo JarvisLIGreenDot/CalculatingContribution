@@ -14,7 +14,7 @@ class UserDataAccess:
         try:
             session = next(db.get_db())
             try:
-                return session.query(User).filter(User.status == True).all()
+                return session.query(User).filter(User.status == 1).all()
             finally:
                 session.close()
         except Exception as e:
@@ -35,7 +35,7 @@ class UserDataAccess:
             try:
                 return session.query(User).filter(
                     User.key == key,
-                    User.status == True
+                    User.status == 1
                 ).first()
             finally:
                 session.close()
