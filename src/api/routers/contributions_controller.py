@@ -9,7 +9,7 @@ router = APIRouter(
 )
 
 @router.get("/export")
-async def export_contributions(days: int = 30):
+async def export_contributions(days: int = 7):
     """
     Export GitHub contributions to CSV file
     
