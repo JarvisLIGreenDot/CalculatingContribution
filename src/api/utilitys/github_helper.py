@@ -5,34 +5,33 @@ from github import Github
 from github.Repository import Repository
 from github.AuthenticatedUser import AuthenticatedUser
 from repos.ConfigureDataAccess import ConfigureDataAccess
-from sqlalchemy.orm import Session
 from models.contributions import Contribution
 from repos.UserDataAccess import UserDataAccess
+from models.user import User
 
 class GitHubHelper:
-    def __init__(self, session: Session):
+    configure_name = "token"  # Define the constant at class level
+
+    def __init__(self):
         """Initialize GitHub helper using token from configuration"""
-        self.session = session
         config_repo = ConfigureDataAccess()
-        config = config_repo.get_configuration_by_key(session, "github.token")
+        config = config_repo.get_configuration_by_name(self.configure_name)
         if not config:
-            raise ValueError("GitHub token not found in configuration")
+            raise ValueError(f"GitHub token not found in configuration with name: {self.configure_name}")
         
         self.github = Github(config.value)
         
-    def get_daily_contributions(self, days: int = 7) -> List[Contribution]:
+    def get_daily_contributions(self, days: int = 7, users: List[User] = None) -> List[Contribution]:
         """
-        Get daily contributions for all active users, grouped by user and date
+        Get daily contributions for specified users, grouped by user and date
         Args:
             days: Number of days to look back (default: 7)
+            users: List of User objects to process (required)
         Returns:
-            List[Contribution]: List of daily contributions grouped by user and date
+            List[Contribution]: List of daily contributions grouped by user and date, sorted by date descending
         """
-        user_repo = UserDataAccess()
-        users = user_repo.get_users(self.session)
-        
         if not users:
-            raise ValueError("No active users found in database")
+            raise ValueError("No users provided to process")
         
         since_date = datetime.now() - timedelta(days=days)
         all_contributions = []
@@ -60,11 +59,18 @@ class GitHubHelper:
             ]
             all_contributions.extend(daily_contributions)
         
-        # Sort by username first, then by date
-        return sorted(
+        # Sort by date descending, then by username
+        sorted_contributions = sorted(
             all_contributions, 
-            key=lambda x: (x.username, x.contrib_date)
+            key=lambda x: (x.contrib_date, x.username),
+            reverse=True
         )
+        
+        # Add sequential IDs
+        for i, contribution in enumerate(sorted_contributions, 1):
+            contribution.id = i
+        
+        return sorted_contributions
     
     def _collect_daily_repo_contributions(
         self, 
