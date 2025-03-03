@@ -73,11 +73,11 @@ class GitHubHelper:
             ]
             all_contributions.extend(daily_contributions)
         
-        # Sort and add IDs
+        # Sort and add IDs - 修改排序逻辑
         sorted_contributions = sorted(
             all_contributions, 
-            key=lambda x: (x.contrib_date, x.username),
-            reverse=True
+            key=lambda x: (x.username, x.contrib_date),  # 先按username排序，再按日期排序
+            reverse=False  # 不再反转排序，使得用户名按字母顺序，日期按升序
         )
         
         for i, contribution in enumerate(sorted_contributions, 1):
