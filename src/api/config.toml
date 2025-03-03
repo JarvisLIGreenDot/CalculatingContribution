@@ -1,0 +1,13 @@
+[server]
+host = "0.0.0.0"
+port = 9050
+workers = 1
+log_level = "info"
+reload = false
+
+[database]
+host = "10.80.13.19"
+port = 5435
+database = "contributions"
+user = "postgres"
+password = "postgres"
