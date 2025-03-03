@@ -108,6 +108,7 @@ class ContributionsService:
             # Define headers with desired column order
             headers = {
                 'id': 'ID',
+                'contribution_type': 'Type',  # 移到第二列
                 'username': 'Username',
                 'contrib_date': 'Date',
                 'repo_name': 'Repository',

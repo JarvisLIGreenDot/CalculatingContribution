@@ -7,6 +7,7 @@ from models.contributions import Contribution
 class ContributionDetail(Contribution):
     repo_name: str = ''  # 仓库名称
     created_date: datetime = None  # 创建时间
+    contribution_type: str = ''  # 贡献类型（COMMIT/PR_REVIEW）
     pr_number: Optional[int] = None  # PR编号
     pr_title: str = ''  # PR标题
     pr_url: str = ''  # PR链接
@@ -27,3 +28,10 @@ class ContributionDetail(Contribution):
             self.pr_review_count = 0
         if not hasattr(self, 'id'):
             self.id = None
+        
+        # 自动推断贡献类型（如果未提供）
+        if not self.contribution_type:
+            if self.commit_sha:
+                self.contribution_type = "COMMIT"
+            elif self.pr_number:
+                self.contribution_type = "PR_REVIEW"
