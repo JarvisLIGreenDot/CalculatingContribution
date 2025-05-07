@@ -172,4 +172,5 @@ cython_debug/
 **.vsc**
 **.idea**
 **/.idea/**
+**/.github/**
 **/node_modules/**

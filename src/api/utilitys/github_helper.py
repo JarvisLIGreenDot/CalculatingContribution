@@ -1,14 +1,11 @@
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import List
 from collections import defaultdict
-from github import Github
-from github.Repository import Repository
-from github.AuthenticatedUser import AuthenticatedUser
+from github import Github, UnknownObjectException
 
 from models.contribution_detail import ContributionDetail
 from repos.ConfigureDataAccess import ConfigureDataAccess
 from models.contributions import Contribution
-from repos.UserDataAccess import UserDataAccess
 from models.user import User
 
 class GitHubHelper:
@@ -38,8 +35,17 @@ class GitHubHelper:
         all_contributions = []
         
         for user_record in users:
+            try:
+                print(f"Check user {user_record.account} on GitHub")
+                self.github.get_user(user_record.account)
+            except UnknownObjectException:
+                print(f"User {user_record.account} not found on GitHub.")
+                continue  # Skip to the next user
+
+            # Capture user_record for the lambda
+            current_user_account = user_record.account
             user_contributions = defaultdict(lambda: Contribution(
-                username=user_record.account,
+                username=current_user_account,
                 contrib_date=datetime.now().date(),
                 commit_count=0,
                 pr_review_count=0

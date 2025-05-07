@@ -1,11 +1,7 @@
-from typing import List
 from fastapi import HTTPException
-from datetime import datetime
 from io import StringIO
 from utilitys.github_helper import GitHubHelper
 from utilitys.csv_helper import CsvHelper
-from models.contributions import Contribution
-from models.contribution_detail import ContributionDetail
 from repos.UserDataAccess import UserDataAccess
 
 class ContributionsService:
