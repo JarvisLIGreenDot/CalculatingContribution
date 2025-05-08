@@ -20,7 +20,7 @@ if __name__ == "__main__":
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
 
-    server_config = config["server"]
+    print(f"The Swagger UI: http://localhost:{app_settings.server.port}/docs")
 
     uvicorn.run(
         app,

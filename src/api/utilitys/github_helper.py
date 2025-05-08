@@ -54,6 +54,7 @@ class GitHubHelper:
             # Search commits directly
             query = f'author:{user_record.account} committer-date:>={since_date.strftime("%Y-%m-%d")}'
             commits = self.github.search_commits(query=query)
+            print(f"Found {commits.totalCount} commits for user {user_record.account}")
             
             for commit in commits:
                 date_str = commit.commit.author.date.strftime('%Y-%m-%d')
@@ -64,6 +65,7 @@ class GitHubHelper:
             # Search PR reviews using issues search with type:pr filter
             query = f'type:pr reviewed-by:{user_record.account} updated:>={since_date.strftime("%Y-%m-%d")}'
             pull_requests = self.github.search_issues(query=query)
+            print(f"Found {pull_requests.totalCount} PR reviews for user {user_record.account}")
             
             for pr in pull_requests:
                 if hasattr(pr, 'pull_request'):  # Verify it's a PR
@@ -109,6 +111,7 @@ class GitHubHelper:
         # Search commits directly
         query = f'author:{user.account} committer-date:>={since_date.strftime("%Y-%m-%d")}'
         commits = self.github.search_commits(query=query)
+        print(f"Found {commits.totalCount} commits for user {user.account}")
         
         # Process commits
         for commit in commits:
@@ -129,6 +132,7 @@ class GitHubHelper:
         # Search PR reviews
         query = f'type:pr reviewed-by:{user.account} updated:>={since_date.strftime("%Y-%m-%d")}'
         pull_requests = self.github.search_issues(query=query)
+        print(f"Found {pull_requests.totalCount} PR reviews for user {user.account}")
         
         # Process PR reviews
         for pr in pull_requests:
