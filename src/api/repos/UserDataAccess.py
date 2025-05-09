@@ -18,11 +18,16 @@ class UserDataAccess:
         try:
             session = next(db.get_db())
             try:
-                return session.query(User).filter(
-                    User.status == 1,
-                    User.teamkey == teamkey,
-                    User.rolekey == rolekey
-                ).all()
+                if teamkey >0 or rolekey > 0:
+                    return session.query(User).filter(
+                        User.status == 1,
+                        User.teamkey == teamkey,
+                        User.rolekey == rolekey
+                    ).all()
+                else:
+                    return session.query(User).filter(
+                        User.status == 1
+                    ).all()
             finally:
                 session.close()
         except Exception as e:
