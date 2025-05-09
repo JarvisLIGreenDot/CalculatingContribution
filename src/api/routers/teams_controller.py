@@ -9,7 +9,7 @@ teams_router = APIRouter(tags=["teams"])
 def get_teams_service():
     return TeamsService()
 
-@teams_router.get("/", response_model=List[Teams])
+@teams_router.get("/list")
 async def get_teams(teams_service: TeamsService = Depends(get_teams_service)):
     """
     获取所有团队列表

@@ -9,9 +9,9 @@ app = FastAPI()
 
 # 注册路由
 app.include_router(contributions_controller.router)
-app.include_router(users_controller.user_router, prefix="/users")
-app.include_router(teams_controller.teams_router, prefix="/teams")
-app.include_router(roles_controller.roles_router, prefix="/roles")
+app.include_router(users_controller.user_router)  # 已在路由器中设置前缀
+app.include_router(teams_controller.teams_router)  # 已在路由器中设置前缀
+app.include_router(roles_controller.roles_router)  # 已在路由器中设置前缀
 
 if __name__ == "__main__":
     # Get the current file's directory and config.toml path

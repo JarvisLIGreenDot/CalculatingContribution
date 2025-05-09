@@ -47,6 +47,7 @@ class GitHubHelper:
             user_contributions = defaultdict(lambda: Contribution(
                 username=current_user_account,
                 contrib_date=datetime.now().date(),
+                repo_name="N/A",
                 commit_count=0,
                 pr_review_count=0
             ))
@@ -61,6 +62,7 @@ class GitHubHelper:
                 date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
                 user_contributions[date_str].contrib_date = date_obj
                 user_contributions[date_str].commit_count += 1
+                user_contributions[date_str].repo_name = commit.repository.full_name
 
             # Search PR reviews using issues search with type:pr filter
             query = f'type:pr reviewed-by:{user_record.account} updated:>={since_date.strftime("%Y-%m-%d")}'
@@ -73,6 +75,7 @@ class GitHubHelper:
                     date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
                     user_contributions[date_str].contrib_date = date_obj
                     user_contributions[date_str].pr_review_count += 1
+                    user_contributions[date_str].repo_name = pr.repository.full_name
 
             # Add non-zero contributions
             daily_contributions = [

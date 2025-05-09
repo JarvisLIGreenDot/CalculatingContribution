@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class Teams(Base):
-    __tablename__ = 'Teams'
+    __tablename__ = 'teams'
     
     key = Column(BigInteger, primary_key=True, nullable=False, comment='Team unique key')
     name = Column(String(100), nullable=False, comment='Team name')
