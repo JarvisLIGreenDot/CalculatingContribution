@@ -10,7 +10,9 @@ class ContributionsService:
         self.github_helper = GitHubHelper()
         self.user_repo = UserDataAccess()
 
-    async def export_contributions_csv(self, days: int = 30) -> StringIO:
+    async def export_contributions_csv(
+        self, days: int = 7, role_key: int = 1, team_key: int = 1
+    ) -> StringIO:
         """
         Export all active users' GitHub contributions to CSV
         
@@ -22,7 +24,7 @@ class ContributionsService:
         """
         try:
             # Get active users from database
-            users = self.user_repo.get_users()
+            users = self.user_repo.get_users(team_key, role_key)
             if not users:
                 raise HTTPException(
                     status_code=404,

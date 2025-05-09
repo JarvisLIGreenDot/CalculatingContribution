@@ -9,19 +9,23 @@ router = APIRouter(
 )
 
 @router.get("/export")
-async def export_contributions(days: int = 7):
+async def export_contributions(days: int = 7, role_key: int = 1, team_key: int = 1):
     """
     Export GitHub contributions to CSV file
     
     Args:
         days: Number of days to look back (default: 30)
+        RoleKey: Role key to filter users by (default: 1)
+        TeamKey: Team key to filter users by (default: 1)
     
     Returns:
         StreamingResponse: CSV file download
     """
     try:
         service = ContributionsService()
-        csv_content = await service.export_contributions_csv(days=days)
+        csv_content = await service.export_contributions_csv(
+            days=days, role_key=role_key, team_key=team_key
+        )
         
         # Generate filename with timestamp
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
