@@ -4,17 +4,25 @@ from models.user import User
 from repos.DataAccess import DataAccess, db
 
 class UserDataAccess:
-    def get_users(self) -> List[User]:
+    def get_users(self, teamkey: int = 1, rolekey: int = 1) -> List[User]:
         """
-        Retrieve all active users from the database
+        Retrieve all active users from the database with specified teamkey and rolekey
+        
+        Args:
+            teamkey: Team key to filter by, defaults to 1
+            rolekey: Role key to filter by, defaults to 1
         
         Returns:
-            List[User]: List of active users
+            List[User]: List of active users with specified teamkey and rolekey
         """
         try:
             session = next(db.get_db())
             try:
-                return session.query(User).filter(User.status == 1).all()
+                return session.query(User).filter(
+                    User.status == 1,
+                    User.teamkey == teamkey,
+                    User.rolekey == rolekey
+                ).all()
             finally:
                 session.close()
         except Exception as e:
