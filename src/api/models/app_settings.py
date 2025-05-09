@@ -11,8 +11,17 @@ class ServerSettings:
     reload: bool
 
 @dataclass
+class ApiSettings:
+    title: str
+    description: str
+    version: str
+    docs_url: str
+    redoc_url: Optional[str] = None
+
+@dataclass
 class AppSettings:
     server: ServerSettings
+    api: ApiSettings
     
     @classmethod
     def from_toml(cls, config_data: dict) -> 'AppSettings':
@@ -24,4 +33,14 @@ class AppSettings:
             reload=config_data["server"]["reload"]
         )
         
-        return cls(server=server_settings)
+        # 使用默认值，如果配置中没有相应的设置
+        api_config = config_data.get("api", {})
+        api_settings = ApiSettings(
+            title=api_config.get("title", "GitHub Contributions API"),
+            description=api_config.get("description", "API for tracking GitHub contributions"),
+            version=api_config.get("version", "0.1.0"),
+            docs_url=api_config.get("docs_url", "/docs"),
+            redoc_url=api_config.get("redoc_url", "/redoc")
+        )
+        
+        return cls(server=server_settings, api=api_settings)

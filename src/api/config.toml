@@ -5,6 +5,13 @@ workers = 1
 log_level = "info"
 reload = false
 
+[api]
+title = "GitHub Contribution Statistics API"
+description = "API for tracking and analyzing team members' contributions on GitHub"
+version = "1.0.0"
+docs_url = "/docs"
+redoc_url = "/redoc"
+
 [database]
 host = "10.80.13.19"
 port = 5435

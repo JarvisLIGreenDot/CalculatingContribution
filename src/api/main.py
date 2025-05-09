@@ -5,7 +5,13 @@ from fastapi import FastAPI
 from routers import contributions_controller, users_controller, teams_controller, roles_controller
 from config.load_config import app_settings
 
-app = FastAPI()
+app = FastAPI(
+    title=app_settings.api.title,
+    description=app_settings.api.description,
+    version=app_settings.api.version,
+    docs_url=app_settings.api.docs_url,
+    redoc_url=app_settings.api.redoc_url
+)
 
 # 注册路由
 app.include_router(contributions_controller.router)
