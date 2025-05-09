@@ -5,6 +5,7 @@ from typing import Optional
 @dataclass
 class Contribution:
     username: str
+    repo_name: str
     contrib_date: date
     commit_count: int = 0
     pr_review_count: int = 0

@@ -47,6 +47,7 @@ class GitHubHelper:
             user_contributions = defaultdict(lambda: Contribution(
                 username=current_user_account,
                 contrib_date=datetime.now().date(),
+                repo_name="N/A",
                 commit_count=0,
                 pr_review_count=0
             ))
@@ -54,16 +55,19 @@ class GitHubHelper:
             # Search commits directly
             query = f'author:{user_record.account} committer-date:>={since_date.strftime("%Y-%m-%d")}'
             commits = self.github.search_commits(query=query)
+            print(f"Found {commits.totalCount} commits for user {user_record.account}")
             
             for commit in commits:
                 date_str = commit.commit.author.date.strftime('%Y-%m-%d')
                 date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
                 user_contributions[date_str].contrib_date = date_obj
                 user_contributions[date_str].commit_count += 1
+                user_contributions[date_str].repo_name = commit.repository.full_name
 
             # Search PR reviews using issues search with type:pr filter
             query = f'type:pr reviewed-by:{user_record.account} updated:>={since_date.strftime("%Y-%m-%d")}'
             pull_requests = self.github.search_issues(query=query)
+            print(f"Found {pull_requests.totalCount} PR reviews for user {user_record.account}")
             
             for pr in pull_requests:
                 if hasattr(pr, 'pull_request'):  # Verify it's a PR
@@ -71,6 +75,7 @@ class GitHubHelper:
                     date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
                     user_contributions[date_str].contrib_date = date_obj
                     user_contributions[date_str].pr_review_count += 1
+                    user_contributions[date_str].repo_name = pr.repository.full_name
 
             # Add non-zero contributions
             daily_contributions = [
@@ -109,6 +114,7 @@ class GitHubHelper:
         # Search commits directly
         query = f'author:{user.account} committer-date:>={since_date.strftime("%Y-%m-%d")}'
         commits = self.github.search_commits(query=query)
+        print(f"Found {commits.totalCount} commits for user {user.account}")
         
         # Process commits
         for commit in commits:
@@ -129,6 +135,7 @@ class GitHubHelper:
         # Search PR reviews
         query = f'type:pr reviewed-by:{user.account} updated:>={since_date.strftime("%Y-%m-%d")}'
         pull_requests = self.github.search_issues(query=query)
+        print(f"Found {pull_requests.totalCount} PR reviews for user {user.account}")
         
         # Process PR reviews
         for pr in pull_requests:

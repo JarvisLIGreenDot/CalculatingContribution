@@ -45,6 +45,7 @@ class ContributionsService:
             headers = {
                 'id': 'ID',
                 'username': 'Username',
+                'repo_name': 'Repository',
                 'contrib_date': 'Date',
                 'commit_count': 'Commit Count',
                 'pr_review_count': 'PR Review Count',

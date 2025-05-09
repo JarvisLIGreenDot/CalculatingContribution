@@ -6,21 +6,20 @@ from models.contributions import Contribution
 @dataclass
 class ContributionDetail(Contribution):
     repo_name: str = ''  # 仓库名称
+    contrib_date: date = None # 贡献日期
     created_date: datetime = None  # 创建时间
     contribution_type: str = ''  # 贡献类型（COMMIT/PR_REVIEW）
-    pr_number: Optional[int] = None  # PR编号
-    pr_title: str = ''  # PR标题
+    pr_number: Optional[int] = None  # PR编号    pr_title: str = ''  # PR标题
     pr_url: str = ''  # PR链接
     review_state: str = ''  # Review状态 (APPROVED/CHANGES_REQUESTED/COMMENTED)
     commit_sha: str = ''  # Commit SHA
     commit_message: str = ''  # Commit信息
     commit_url: str = ''  # Commit链接
-
-    def __post_init__(self):
-        # 确保父类的字段被正确初始化
+    
+    def __post_init__(self):        # 确保父类的字段被正确初始化
         if not hasattr(self, 'username'):
             self.username = ''
-        if not hasattr(self, 'contrib_date'):
+        if self.contrib_date is None:
             self.contrib_date = date.today()
         if not hasattr(self, 'commit_count'):
             self.commit_count = 0
@@ -28,6 +27,10 @@ class ContributionDetail(Contribution):
             self.pr_review_count = 0
         if not hasattr(self, 'id'):
             self.id = None
+            
+        # 确保created_date有一个有效值
+        if self.created_date is None:
+            self.created_date = datetime.now()
         
         # 自动推断贡献类型（如果未提供）
         if not self.contribution_type:
