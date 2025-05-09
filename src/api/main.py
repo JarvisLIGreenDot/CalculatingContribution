@@ -2,12 +2,16 @@ import tomllib
 import uvicorn
 from pathlib import Path
 from fastapi import FastAPI
-from routers import contributions_controller
+from routers import contributions_controller, users_controller, teams_controller, roles_controller
 from config.load_config import app_settings
 
 app = FastAPI()
 
+# 注册路由
 app.include_router(contributions_controller.router)
+app.include_router(users_controller.user_router, prefix="/users")
+app.include_router(teams_controller.teams_router, prefix="/teams")
+app.include_router(roles_controller.roles_router, prefix="/roles")
 
 if __name__ == "__main__":
     # Get the current file's directory and config.toml path
