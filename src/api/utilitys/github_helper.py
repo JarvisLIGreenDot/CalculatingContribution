@@ -46,10 +46,7 @@ class GitHubHelper:
                 else:
                     user_contributions[key] = value
 
-            daily_contributions = [
-                contrib for contrib in user_contributions.values()
-                if contrib.subtotal > 0
-            ]
+            daily_contributions = list(user_contributions.values())
             all_contributions.extend(daily_contributions)
 
         # Sort and add IDs - 修改排序逻辑
@@ -151,15 +148,15 @@ class GitHubHelper:
 
     def get_user_commits_list(self, days: int = 7, user_account: str = "") -> defaultdict[Any, Contribution]:
         since_date = datetime.now() - timedelta(days=days)
+        today = datetime.now().date()
         try:
             print(f"Check user {user_account} on GitHub")
             self.github.get_user(user_account)
         except UnknownObjectException:
             print(f"User {user_account} not found on GitHub.")
 
-        # Capture user_record for the lambda
+        # 1. 先收集原有贡献数据
         user_contributions = self._init_contribution(user_account)
-        # Search commits directly
         query = f'author:{user_account} committer-date:>={since_date.strftime("%Y-%m-%d")}'
         commits = self.github.search_commits(query=query)
         print(f"Found {commits.totalCount} commits for user {user_account}")
@@ -170,11 +167,25 @@ class GitHubHelper:
             user_contributions[date_str].contrib_date = date_obj
             user_contributions[date_str].commit_count += 1
             user_contributions[date_str].repo_name = commit.repository.full_name
+
+        # 2. 补全没有数据的日期
+        for i in range(days):
+            day = today - timedelta(days=days - 1 - i)
+            date_str = day.strftime('%Y-%m-%d')
+            if date_str not in user_contributions:
+                user_contributions[date_str] = Contribution(
+                    username=user_account,
+                    contrib_date=day,
+                    repo_name="N/A",
+                    commit_count=0,
+                    pr_review_count=0
+                )
+
         return user_contributions
 
     def get_user_pull_request_list(self, days: int = 7, user_account: str = "") -> defaultdict[Any, Contribution]:
         since_date = datetime.now() - timedelta(days=days)
-        # Capture user_record for the lambda
+        today = datetime.now().date()
         user_contributions = self._init_contribution(user_account)
         # Search PR reviews using issues search with type:pr filter
         query = f'type:pr reviewed-by:{user_account} updated:>={since_date.strftime("%Y-%m-%d")}'
@@ -188,6 +199,20 @@ class GitHubHelper:
                 user_contributions[date_str].contrib_date = date_obj
                 user_contributions[date_str].pr_review_count += 1
                 user_contributions[date_str].repo_name = pr.repository.full_name
+
+        # 补全没有数据的日期
+        for i in range(days):
+            day = today - timedelta(days=days - 1 - i)
+            date_str = day.strftime('%Y-%m-%d')
+            if date_str not in user_contributions:
+                user_contributions[date_str] = Contribution(
+                    username=user_account,
+                    contrib_date=day,
+                    repo_name="N/A",
+                    commit_count=0,
+                    pr_review_count=0
+                )
+
         return user_contributions
 
     def _init_contribution(self, user_account: str = "") -> defaultdict[Any, Contribution]:

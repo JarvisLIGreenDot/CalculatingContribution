@@ -26,7 +26,8 @@ class UserDataAccess:
                     ).all()
                 else:
                     return session.query(User).filter(
-                        User.status == 1
+                        User.status == 1,
+                        User.teamkey >0
                     ).all()
             finally:
                 session.close()
