@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from datetime import datetime
+from datetime import datetime, timedelta
 from business.contributions_service import ContributionsService
 
 router = APIRouter(
@@ -23,14 +23,16 @@ async def export_contributions(days: int = 7, role_key: int = 1, team_key: int =
     """
     try:
         service = ContributionsService()
+        # Generate filename with date range
+        end_date = datetime.now().date() - timedelta(days=1)
+        start_date = end_date - timedelta(days=days-1)
+        filename = f"github_contributions_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
+
         csv_content = await service.export_contributions_csv(
             days=days, role_key=role_key, team_key=team_key
         )
         
-        # Generate filename with timestamp
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"github_contributions_{timestamp}.csv"
-        
+
         return StreamingResponse(
             iter([csv_content.getvalue()]),
             media_type='text/csv',
