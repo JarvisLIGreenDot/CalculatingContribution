@@ -261,5 +261,5 @@ class GitHubHelper:
     def get_since_date(
             self, days: int = 7
     ) -> datetime:
-        since_date = datetime.now() - timedelta(days=days-1)
+        since_date = datetime.now() - timedelta(days=days)
         return since_date
