@@ -107,7 +107,7 @@ class GitHubHelper:
     def get_contribution_commits_details(
         self, days: int = 7, user: User = None
     ) -> List[ContributionDetail]:
-        since_date = datetime.now() - timedelta(days=days)
+        since_date = self.get_since_date(days)
         details = []
 
         # Search commits directly
@@ -137,7 +137,7 @@ class GitHubHelper:
     def get_contribution_pr_details(
         self, days: int = 7, user: User = None
     ) -> List[ContributionDetail]:
-        since_date = datetime.now() - timedelta(days=days)
+        since_date = self.get_since_date(days)
         details = []
 
         # Search PR reviews
@@ -168,7 +168,7 @@ class GitHubHelper:
     def get_user_commits_list(
         self, days: int = 7, user_account: str = ""
     ) -> defaultdict[Any, Contribution]:
-        since_date = datetime.now() - timedelta(days=days)
+        since_date = self.get_since_date(days)
         try:
             print(f"Check user {user_account} on GitHub")
             self.github.get_user(user_account)
@@ -195,7 +195,7 @@ class GitHubHelper:
     def get_user_pull_request_list(
         self, days: int = 7, user_account: str = ""
     ) -> defaultdict[Any, Contribution]:
-        since_date = datetime.now() - timedelta(days=days)
+        since_date = self.get_since_date(days)
         user_contributions = self._init_contribution(user_account)
         # Search PR reviews using issues search with type:pr filter
         query = f"type:pr reviewed-by:{user_account} updated:>={since_date.strftime('%Y-%m-%d')}"
@@ -233,9 +233,14 @@ class GitHubHelper:
         user_contributions: defaultdict[Any, Contribution] = None,
     ) -> defaultdict[Any, Contribution]:
         today = datetime.now().date()
-
+        yesterday = today - timedelta(days=1)
+        
+        # 计算开始日期：从昨天往前推(days-1)天
+        start_date = yesterday - timedelta(days=days-1)
+        
+        # 初始化从start_date到yesterday的所有日期
         for i in range(days):
-            day = today - timedelta(days=days - 1 - i)
+            day = start_date + timedelta(days=i)
             date_str = day.strftime("%Y-%m-%d")
             if date_str not in user_contributions:
                 user_contributions[date_str] = Contribution(
@@ -245,4 +250,16 @@ class GitHubHelper:
                     commit_count=0,
                     pr_review_count=0,
                 )
+        
+        # 移除今天的数据（如果存在）
+        today_str = today.strftime("%Y-%m-%d")
+        if today_str in user_contributions:
+            del user_contributions[today_str]
+            
         return user_contributions
+
+    def get_since_date(
+            self, days: int = 7
+    ) -> datetime:
+        since_date = datetime.now() - timedelta(days=days-1)
+        return since_date
