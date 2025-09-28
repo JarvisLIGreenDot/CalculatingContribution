@@ -3,6 +3,7 @@ from io import StringIO
 from utilitys.github_helper import GitHubHelper
 from utilitys.csv_helper import CsvHelper
 from repos.UserDataAccess import UserDataAccess
+from utilitys.github_date_range_helper import GitHubDateRangeHelper
 
 class ContributionsService:
     def __init__(self):
@@ -131,4 +132,69 @@ class ContributionsService:
             raise HTTPException(
                 status_code=500,
                 detail=f"Failed to export contribution details: {str(e)}"
+            )
+
+    async def export_contributions_by_date_range_csv(
+            self, start_date: str, end_date: str, role_key: int = 1, team_key: int = 1
+    ) -> StringIO:
+        """
+        Export all active users' GitHub contributions for a date range to CSV.
+
+        Args:
+            start_date: The start date in YYYY-MM-DD format.
+            end_date: The end date in YYYY-MM-DD format.
+            role_key: The role key for filtering users.
+            team_key: The team key for filtering users.
+
+        Returns:
+            StringIO: CSV content as a string buffer.
+        """
+        try:
+            # Validate and parse dates
+            date_helper = GitHubDateRangeHelper(start_date, end_date)
+            days = date_helper.get_days_diff()
+
+            # Get active users from database
+            users = self.user_repo.get_users(team_key, role_key)
+            if not users:
+                raise HTTPException(
+                    status_code=404,
+                    detail="No active users found"
+                )
+
+            # Get contributions from GitHub
+            contributions = self.github_helper.get_daily_contributions(
+                days=days,
+                users=users
+            )
+
+            if not contributions:
+                raise HTTPException(
+                    status_code=404,
+                    detail="No contributions found for the specified date range"
+                )
+
+            # Define headers with desired column order
+            headers = {
+                'id': 'ID',
+                'username': 'Username',
+                'repo_name': 'Repository',
+                'contrib_date': 'Date',
+                'commit_count': 'Commit Count',
+                'pr_review_count': 'PR Review Count',
+                'subtotal': 'Total'
+            }
+
+            # Export to CSV and return stream
+            return CsvHelper.export_to_csv(
+                data=contributions,
+                headers=headers
+            )
+
+        except ValueError as ve:
+            raise HTTPException(status_code=400, detail=str(ve))
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to export contributions: {str(e)}"
             )
